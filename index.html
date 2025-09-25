@@ -1,15 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Multi-Stream Chaos</title>
+  <title>Multi-YouTube Chaos Grid</title>
   <style>
-    html, body { margin:0; padding:0; width:100%; height:100%; background:#111; }
-    #grid { display:grid; gap:5px; width:100vw; height:100vh; }
-    .block { display:flex; flex-direction:column; background:#000; }
-    iframe { border:none; width:100%; height:50%; }
-    #controls { position:fixed; top:0; left:0; width:100%; padding:10px; background:#222; display:flex; gap:10px; z-index:10; }
-    input { flex:1; padding:5px; border-radius:4px; border:none; }
-    button { padding:5px 10px; border:none; border-radius:4px; background:#4CAF50; color:white; cursor:pointer; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: #fff;
+      height: 100%;
+      width: 100%;
+      font-family: sans-serif;
+    }
+    #controls {
+      display: flex;
+      padding: 10px;
+      background: #222;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    #ytLink {
+      flex: 1;
+      padding: 5px;
+      border-radius: 4px;
+      border: none;
+    }
+    button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    #grid {
+      display: grid;
+      gap: 5px;
+      width: 100vw;
+      height: calc(100vh - 60px); /* Adjust for controls height */
+    }
+    .block {
+      display: flex;
+      flex-direction: column;
+      background: #000;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 50%;
+    }
   </style>
 </head>
 <body>
@@ -22,48 +62,54 @@
 <div id="grid"></div>
 
 <script>
-const domain = https:risketernal.github.io/multisteam/; // Replace with your GitHub Pages domain
-const grid = document.getElementById("grid");
-let videoIDs = [];
+  const domain = "https://risketernal.github.io/multisteam/"; // Replace with your GitHub Pages domain
+  const viewer = document.getElementById("grid");
+  let videoIDs = [];
 
-function getVideoId(url) {
-  const match = url.match(/(?:v=|\.be\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : url.length===11 ? url : null;
-}
+  // Extract YouTube ID from URL or ID
+  function getVideoId(url) {
+    const match = url.match(/(?:v=|\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : url.length === 11 ? url : null;
+  }
 
-function addVideo(idOrUrl) {
-  const id = getVideoId(idOrUrl) || getVideoId(document.getElementById("ytLink").value);
-  if(!id) return alert("Invalid YouTube link or ID");
-  videoIDs.push(id);
-  renderGrid();
-  document.getElementById("ytLink").value = "";
-}
+  // Add video block
+  function addVideo(idOrUrl) {
+    const id = getVideoId(idOrUrl) || getVideoId(document.getElementById("ytLink").value);
+    if (!id) return alert("Invalid YouTube link or ID");
 
-function renderGrid() {
-  grid.innerHTML="";
-  const n = videoIDs.length;
-  if(n===0) return;
-  const cols = Math.ceil(Math.sqrt(n));
-  const rows = Math.ceil(n/cols);
-  grid.style.gridTemplateColumns=`repeat(${cols}, 1fr)`;
-  grid.style.gridTemplateRows=`repeat(${rows}, 1fr)`;
-  videoIDs.forEach(id=>{
-    const block=document.createElement("div");
-    block.className="block";
-    block.innerHTML=`
-      <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
-      <iframe src="https://www.youtube.com/live_chat?v=${id}&embed_domain=${domain}"></iframe>
-    `;
-    grid.appendChild(block);
-  });
-}
+    videoIDs.push(id);
+    renderGrid();
+    document.getElementById("ytLink").value = "";
+  }
 
-// Load from URL query ?v=ID1,ID2
-const params = new URLSearchParams(window.location.search);
-const vids = params.get("v");
-if(vids) vids.split(",").forEach(v=>addVideo(v));
+  // Render responsive grid
+  function renderGrid() {
+    viewer.innerHTML = "";
+    const n = videoIDs.length;
+    if (n === 0) return;
+    const cols = Math.ceil(Math.sqrt(n));
+    const rows = Math.ceil(n / cols);
+    viewer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    viewer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+    videoIDs.forEach(id => {
+      const block = document.createElement("div");
+      block.className = "block";
+      block.innerHTML = `
+        <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
+        <iframe src="https://www.youtube.com/live_chat?v=${id}&embed_domain=${domain}"></iframe>
+      `;
+      viewer.appendChild(block);
+    });
+  }
+
+  // Load videos from URL query: ?v=ID1,ID2,ID3
+  const urlParams = new URLSearchParams(window.location.search);
+  const videos = urlParams.get("v");
+  if (videos) {
+    videos.split(",").forEach(v => addVideo(v));
+  }
 </script>
 
 </body>
 </html>
-
